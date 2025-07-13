@@ -1094,7 +1094,8 @@ txt2img_interface = gr.Interface(
         gr.HTML(),
     ],
     title="Stable Diffusion Text-to-Image",
-    flagging_callback=Flagging()
+    flagging_callback=Flagging(),
+    concurrency_limit=1
 )
 
 
@@ -1262,7 +1263,7 @@ img2img_interface = gr.Interface(
     wrap_gradio_call(img2img),
     inputs=[
         gr.Textbox(placeholder="A fantasy landscape, trending on artstation.", lines=1),
-        gr.Image(value=sample_img2img, source="upload", interactive=True, type="pil"),
+        gr.Image(value=sample_img2img, interactive=True, type="pil"),
         gr.Slider(minimum=1, maximum=150, step=1, label="Sampling Steps", value=20),
         gr.Radio(label='Sampling method', choices=[x.name for x in samplers_for_img2img], value=samplers_for_img2img[0].name, type="index"),
         gr.Checkbox(label='Fix faces using GFPGAN', value=False, visible=have_gfpgan),
@@ -1284,6 +1285,7 @@ img2img_interface = gr.Interface(
         gr.HTML(),
     ],
     allow_flagging="never",
+    concurrency_limit=1
 )
 
 
@@ -1333,7 +1335,7 @@ def run_extras(image, GFPGAN_strength, RealESRGAN_upscaling, RealESRGAN_model_in
 extras_interface = gr.Interface(
     wrap_gradio_call(run_extras),
     inputs=[
-        gr.Image(label="Source", source="upload", interactive=True, type="pil"),
+        gr.Image(label="Source", interactive=True, type="pil"),
         gr.Slider(minimum=0.0, maximum=1.0, step=0.001, label="GFPGAN strength", value=1, interactive=have_gfpgan),
         gr.Slider(minimum=1.0, maximum=4.0, step=0.05, label="Real-ESRGAN upscaling", value=2, interactive=have_realesrgan),
         gr.Radio(label='Real-ESRGAN model', choices=[x.name for x in realesrgan_models], value=realesrgan_models[0].name, type="index", interactive=have_realesrgan),
@@ -1344,6 +1346,7 @@ extras_interface = gr.Interface(
         gr.HTML(),
     ],
     allow_flagging="never",
+    concurrency_limit=1
 )
 
 
@@ -1367,12 +1370,13 @@ def run_pnginfo(image):
 pnginfo_interface = gr.Interface(
     wrap_gradio_call(run_pnginfo),
     inputs=[
-        gr.Image(label="Source", source="upload", interactive=True, type="pil"),
+        gr.Image(label="Source", interactive=True, type="pil"),
     ],
     outputs=[
         gr.HTML(),
     ],
     allow_flagging="never",
+    concurrency_limit=1
 )
 
 
@@ -1424,6 +1428,7 @@ settings_interface = gr.Interface(
     title=None,
     description=None,
     allow_flagging="never",
+    concurrency_limit=1
 )
 
 interfaces = [
@@ -1456,5 +1461,5 @@ demo = gr.TabbedInterface(
 """
 )
 
-demo.queue(concurrency_count=1)
-demo.launch()
+demo.queue()
+demo.launch(server_name="0.0.0.0", max_threads=1, debug=True)
